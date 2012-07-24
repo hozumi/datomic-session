@@ -29,8 +29,7 @@
                         (assoc data :db/id eid :session/key newkey)
                         (assoc data :db/id eid))
                       (assoc data :db/id #db/id [:db.part/user]
-                             :session/key newkey
-                             :session/date (java.util.Date.)))])
+                             :session/key newkey))])
       newkey))
   (delete-session [_ key]
     (when-let [eid (get-eid-by-key (d/db conn) key)]
