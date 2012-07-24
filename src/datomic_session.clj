@@ -48,24 +48,19 @@
     (when-not (empty? new-schema)
       @(d/transact conn new-schema))))
 
-(def my-schema
-  [{:db/ident :session/key
-    :db/id #db/id[:db.part/db]
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/unique :db.unique/value
-    :db/index true
-    :db/noHistory true
-    :db/doc "A key of session"
-    :db.install/_attribute :db.part/db}
-   {:db/ident :session/date
-    :db/id #db/id[:db.part/db]
-    :db/valueType :db.type/instant
-    :db/cardinality :db.cardinality/one
-    :db/noHistory true
-    :db/doc "A starting date of session"
-    :db.install/_attribute :db.part/db}])
+(def key-schema
+  {:db/ident :session/key
+   :db/id #db/id[:db.part/db]
+   :db/valueType :db.type/string
+   :db/cardinality :db.cardinality/one
+   :db/unique :db.unique/value
+   :db/index true
+   :db/doc "A key of session"
+   :db.install/_attribute :db.part/db})
 
-(defn datomic-store [{:keys [conn schema auto-key-change?]}]
-  (ensure-schema conn (concat my-schema schema))
+(defn datomic-store [{:keys [conn schema no-history? auto-key-change?]}]
+  (ensure-schema conn
+                 (conj schema
+                       (if no-history?
+                         (assoc key-schema :db/noHistory true) key-schema)))
   (DatomicStore. conn auto-key-change?))
