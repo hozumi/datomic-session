@@ -16,7 +16,7 @@
   (read-session [_ key]
     (let [db (d/db conn)]
       (if-let [eid (get-eid-by-key db key)]
-        (d/entity db eid)
+        (into {} (d/entity db eid))
         {})))
   (write-session [_ key data]
     (let [eid (get-eid-by-key (d/db conn) key)
