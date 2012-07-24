@@ -29,6 +29,7 @@
                  :db/cardinality :db.cardinality/one
                  :db/noHistory true
                  :db.install/_attribute :db.part/db}])
+
 (deftest session-create
   (with-testdb
     (let [store (ds/datomic-store
@@ -72,5 +73,4 @@
                   :schema my-schema})
           key (rs/write-session store nil {:session/foo "bar"})]
       (is (nil? (rs/delete-session store key)))
-      (is (= (rs/read-session store key)
-             {})))))
+      (is (= (rs/read-session store key) {})))))
