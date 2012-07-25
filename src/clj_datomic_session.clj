@@ -1,4 +1,4 @@
-(ns datomic-session
+(ns clj-datomic-session
   (:require [datomic.api :as d]
             [ring.middleware.session.store :as rs]))
 

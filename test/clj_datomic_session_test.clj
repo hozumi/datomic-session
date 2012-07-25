@@ -1,8 +1,8 @@
-(ns datomic-session-test
+(ns clj-datomic-session-test
   (:use [clojure.test])
   (:require [ring.middleware.session.store :as rs]
             [datomic.api :as d]
-            [datomic-session :as ds]))
+            [clj-datomic-session :as ds]))
 
 (defn fresh-db-conn! []
   (let [uri "datomic:mem://datomic-session-test"]
