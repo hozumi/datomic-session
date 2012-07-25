@@ -15,9 +15,7 @@
   rs/SessionStore
   (read-session [_ key]
     (let [db (d/db conn)]
-      (if-let [eid (get-eid-by-key db key)]
-        (into {} (d/entity db eid))
-        {})))
+      (into {} (d/entity db (get-eid-by-key db key)))))
   (write-session [_ key data]
     (let [eid (get-eid-by-key (d/db conn) key)
           key-change? (or (not eid) auto-key-change?)
