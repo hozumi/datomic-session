@@ -1,6 +1,6 @@
-# clj-datomic-session
+# datomic-session
 
-The clj-datomic-session is a Datomic version of Ring's http session storage.
+The datomic-session is a Datomic version of Ring's http session storage.
 
 ## Usage
 
@@ -8,7 +8,7 @@ The clj-datomic-session is a Datomic version of Ring's http session storage.
 (ns hello
   (:require [ring.middleware.session]
             [ring.middleware.cookies]
-            [clj-datomic-session]
+            [datomic-session]
             [datomic.api :as d]
     ...))
 
@@ -18,7 +18,7 @@ The clj-datomic-session is a Datomic version of Ring's http session storage.
 
 (def app (-> my-routes
              (ring.middleware.session/wrap-session
-               {:store (clj-datomic-session/datomic-store
+               {:store (datomic-session/datomic-store
                          {:conn conn
                           :schema [{:db/ident :session/user
                                     :db/id #db/id[:db.part/db]
@@ -52,4 +52,4 @@ Attribute definitions passed to the option-map and following definition of :sess
 ## Installation
 Leiningen
 
-    [clj-datomic-session "0.1.0-SNAPSHOT"]
+    [datomic-session "0.1.0-SNAPSHOT"]
