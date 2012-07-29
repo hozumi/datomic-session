@@ -20,12 +20,12 @@ Datomic-session is a Datomic version of Ring's http session storage.
              (ring.middleware.session/wrap-session
                {:store (datomic-session/datomic-store
                          {:conn conn
-                          :schema [{:db/ident :session/user
-                                    :db/id #db/id[:db.part/db]
-                                    :db/valueType :db.type/ref
-                                    :db/cardinality :db.cardinality/one
-                                    :db/doc "Logined user"
-                                    :db.install/_attribute :db.part/db}]})})
+                          :attrs [{:db/ident :session/user
+                                   :db/id #db/id[:db.part/db]
+                                   :db/valueType :db.type/ref
+                                   :db/cardinality :db.cardinality/one
+                                   :db/doc "Logined user"
+                                   :db.install/_attribute :db.part/db}]})})
              ring.middleware.cookies/wrap-cookies))
 ```
 
@@ -45,7 +45,7 @@ Attribute definitions passed to the option-map and following definition of :sess
 *options*
 
 * **:conn** *(Connection)* Datomic connection.
-* **:schema** *(Sequence)* A sequence of attribute definitions you will use as session. Probably you need only one attribute something like :session/user in order to track who the user is. I think you should store other infomation not in session, but in the db directly because session system has no advantage over datomic thanks to datomic's efficient cache system.
+* **:attrs** *(Sequence)* A sequence of attribute definitions you will use as session. Probably you need only one attribute something like :session/user in order to track who the user is. I think you should store other infomation not in session, but in the db directly because session system has no advantage over datomic thanks to datomic's efficient cache system.
 * **:no-history?** *(boolean)* Add `:db/noHistory true` to the definition of :session/key attrubute. Defaults to false.
 * **:auto-key-change?** *(boolean)* Change session id when session is updated. Defaults to false.
 

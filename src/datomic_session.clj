@@ -34,14 +34,14 @@
       @(d/transact conn [[:db.fn/retractEntity eid]]))
     nil))
 
-(defn ensure-schema [conn schema]
+(defn ensure-attrs [conn attrs]
   (let [db (d/db conn)
-        new-schema (filter #(->> % :db/ident (d/entity db) :db/id not)
-                           schema)]
-    (when-not (empty? new-schema)
-      @(d/transact conn new-schema))))
+        new-attrs (filter #(->> % :db/ident (d/entity db) :db/id not)
+                          attrs)]
+    (when-not (empty? new-attrs)
+      @(d/transact conn new-attrs))))
 
-(def key-schema
+(def key-attr
   {:db/ident :session/key
    :db/id #db/id[:db.part/db]
    :db/valueType :db.type/string
@@ -51,9 +51,9 @@
    :db/doc "A key of session"
    :db.install/_attribute :db.part/db})
 
-(defn datomic-store [{:keys [conn schema no-history? auto-key-change?]}]
-  (ensure-schema conn
-                 (conj schema
-                       (if no-history?
-                         (assoc key-schema :db/noHistory true) key-schema)))
+(defn datomic-store [{:keys [conn attrs no-history? auto-key-change?]}]
+  (ensure-attrs conn
+                (conj attrs
+                      (if no-history?
+                        (assoc key-attr :db/noHistory true) key-attr)))
   (DatomicStore. conn auto-key-change?))

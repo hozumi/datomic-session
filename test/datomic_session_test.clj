@@ -23,18 +23,18 @@
       (is (rs/read-session store "non-existent")
           {}))))
 
-(def my-schema [{:db/ident :session/foo
-                 :db/id #db/id[:db.part/db]
-                 :db/valueType :db.type/string
-                 :db/cardinality :db.cardinality/one
-                 :db/noHistory true
-                 :db.install/_attribute :db.part/db}])
+(def my-attrs [{:db/ident :session/foo
+                :db/id #db/id[:db.part/db]
+                :db/valueType :db.type/string
+                :db/cardinality :db.cardinality/one
+                :db/noHistory true
+                :db.install/_attribute :db.part/db}])
 
 (deftest session-create
   (with-testdb
     (let [store (ds/datomic-store
                  {:conn *conn*
-                  :schema my-schema})
+                  :attrs my-attrs})
           key (rs/write-session store nil {:session/foo "bar"})
           entity   (rs/read-session store key)]
       (is key)
@@ -45,7 +45,7 @@
   (with-testdb
     (let [store (ds/datomic-store
                  {:conn *conn*
-                  :schema my-schema})
+                  :attrs my-attrs})
           key (rs/write-session store nil {:session/foo "bar"})
           key* (rs/write-session store key {:session/foo "baz"})
           entity (rs/read-session store key*)]
@@ -57,7 +57,7 @@
   (with-testdb
     (let [store (ds/datomic-store
                  {:conn *conn*
-                  :schema my-schema
+                  :attrs my-attrs
                   :auto-key-change? true})
           key (rs/write-session store nil {:session/foo "bar"})
           key* (rs/write-session store key {:session/foo "baz"})
@@ -70,7 +70,7 @@
   (with-testdb
     (let [store (ds/datomic-store
                  {:conn *conn*
-                  :schema my-schema})
+                  :attrs my-attrs})
           key (rs/write-session store nil {:session/foo "bar"})]
       (is (nil? (rs/delete-session store key)))
       (is (= (rs/read-session store key) {})))))
