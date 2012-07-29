@@ -35,14 +35,9 @@
     nil))
 
 (defn ensure-schema [conn schema]
-  (let [installed-attr-set (->> (d/q '[:find ?attr
-                                       :where
-                                       [?e :db/ident ?attr]]
-                                     (d/db conn))
-                                (apply concat)
-                                set)
-        new-schema (filter (fn [{ident :db/ident}]
-                             (not (installed-attr-set ident))) schema)]
+  (let [db (d/db conn)
+        new-schema (filter #(->> % :db/ident (d/entity db) :db/id not)
+                           schema)]
     (when-not (empty? new-schema)
       @(d/transact conn new-schema))))
 
