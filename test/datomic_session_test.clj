@@ -20,8 +20,8 @@
 (deftest read-not-exist
   (with-testdb
     (let [store (ds/datomic-store {:conn *conn*})]
-      (is (rs/read-session store "non-existent")
-          {}))))
+      (is (= (rs/read-session store "non-existent")
+             {})))))
 
 (def my-attrs [{:db/ident :session/foo
                 :db/id #db/id[:db.part/db]
