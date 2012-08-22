@@ -46,12 +46,16 @@
     (let [store (ds/datomic-store
                  {:conn *conn*
                   :attrs my-attrs})
-          key (rs/write-session store nil {:session/foo "bar"})
-          key* (rs/write-session store key {:session/foo "baz"})
-          entity (rs/read-session store key*)]
-      (is (= key key*))
-      (is (:session/key entity))
-      (is (= (:session/foo entity) "baz")))))
+          key0 (rs/write-session store nil {:session/foo "bar"})
+          key1 (rs/write-session store key0 {:session/foo "baz",
+                                             :session/key key0})
+          entity1 (rs/read-session store key1)
+          key2 (rs/write-session store key1 {:session/key key1})
+          entity2 (rs/read-session store key2)]
+      (is (= key0 key1 key2))
+      (is (= entity1 {:session/foo "baz",
+                      :session/key key1}))
+      (is (= entity2 {:session/key key2})))))
 
 (deftest session-auto-key-change
   (with-testdb
