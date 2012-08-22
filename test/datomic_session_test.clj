@@ -38,8 +38,9 @@
           key (rs/write-session store nil {:session/foo "bar"})
           entity   (rs/read-session store key)]
       (is key)
-      (is (:session/key entity))
-      (is (= (:session/foo entity) "bar")))))
+      (is (= entity
+             {:session/foo "bar",
+              :session/key key})))))
 
 (deftest session-update
   (with-testdb
@@ -64,11 +65,13 @@
                   :attrs my-attrs
                   :auto-key-change? true})
           key (rs/write-session store nil {:session/foo "bar"})
-          key* (rs/write-session store key {:session/foo "baz"})
+          key* (rs/write-session store key {:session/foo "baz",
+                                            :session/key key})
           entity (rs/read-session store key*)]
       (is (not= key key*))
-      (is (:session/key entity))
-      (is (= (:session/foo entity) "baz")))))
+      (is (= entity
+             {:session/foo "baz",
+              :session/key key*})))))
 
 (deftest session-delete
   (with-testdb
