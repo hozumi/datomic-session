@@ -12,11 +12,9 @@ Datomic-session is a Datomic version of Ring's http session storage.
             [datomic.api :as d]
     ...))
 
-(defroutes my-routes ....)
-
 (def conn (d/connect "datomic:mem://test"))
 
-(def app (-> my-routes
+(def app (-> myhandler
              (ring.middleware.session/wrap-session
                {:store (datomic-session/datomic-store {:conn conn})})
              ring.middleware.cookies/wrap-cookies))
