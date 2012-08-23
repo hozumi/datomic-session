@@ -18,18 +18,11 @@ Datomic-session is a Datomic version of Ring's http session storage.
 
 (def app (-> my-routes
              (ring.middleware.session/wrap-session
-               {:store (datomic-session/datomic-store
-                         {:conn conn
-                          :attrs [{:db/ident :session/user
-                                   :db/id #db/id[:db.part/db]
-                                   :db/valueType :db.type/ref
-                                   :db/cardinality :db.cardinality/one
-                                   :db/doc "Logined user"
-                                   :db.install/_attribute :db.part/db}]})})
+               {:store (datomic-session/datomic-store {:conn conn})})
              ring.middleware.cookies/wrap-cookies))
 ```
 
-Attribute definitions passed to the option-map and following definition of :session/key are installed automatically when they are not in db.
+You must install following :session/key attribute into datomic.
 
 ```clojure
 {:db/ident :session/key
@@ -42,11 +35,21 @@ Attribute definitions passed to the option-map and following definition of :sess
  :db.install/_attribute :db.part/db}
 ```
 
+Then you also need to install attributes you will use as session.
+*Example*
+
+```clojure
+{:db/ident :session/user
+ :db/id #db/id[:db.part/db]
+ :db/valueType :db.type/ref
+ :db/cardinality :db.cardinality/one
+ :db/doc "Logined user"
+ :db.install/_attribute :db.part/db}
+```
+
 *options*
 
 * **:conn** *(Connection)* Datomic connection.
-* **:attrs** *(Sequence)* A sequence of attribute definitions you will use as session. Of course, you can also install attributes in the way you like instead of using this option.
-* **:no-history?** *(boolean)* Add `:db/noHistory true` to the definition of :session/key attrubute. Defaults to false.
 * **:auto-key-change?** *(boolean)* Change session id when session is updated. Defaults to false.
 
 ## Installation
