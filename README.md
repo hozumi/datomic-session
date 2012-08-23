@@ -33,7 +33,7 @@ You must install following :session/key attribute into datomic.
  :db.install/_attribute :db.part/db}
 ```
 
-Then you also need to install attributes you will use as session.
+Then you also need to install attributes you will use as session.<br>
 *Example*
 
 ```clojure
