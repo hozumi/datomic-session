@@ -30,18 +30,18 @@
     (let [db (and key (d/db conn))
           eid (get-eid-by-key db key)
           key-change? (or (not eid) auto-key-change?)
-          newkey (if key-change?
+          key (if key-change?
                    (str (java.util.UUID/randomUUID)) key)]
       (if eid
         (let [old-data (into {} (d/entity db eid))
-              tx-data (diff-tx-data eid old-data (assoc data :session/key newkey))]
+              tx-data (diff-tx-data eid old-data (assoc data :session/key key))]
           (when (seq tx-data)
             @(d/transact conn tx-data)))
         @(d/transact conn
                      [(assoc data
                         :db/id #db/id [:db.part/user]
-                        :session/key newkey)]))
-      newkey))
+                        :session/key key)]))
+      key))
   (delete-session [_ key]
     (when-let [eid (get-eid-by-key (d/db conn) key)]
       @(d/transact conn [[:db.fn/retractEntity eid]]))
