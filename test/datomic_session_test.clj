@@ -13,8 +13,25 @@
 
 (def ^:dynamic *conn*)
 
+(def attrs
+  [{:db/ident :session/key
+    :db/id #db/id[:db.part/db]
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/unique :db.unique/value
+    :db/index true
+    :db/doc "A key of session"
+    :db.install/_attribute :db.part/db},
+   {:db/ident :session/foo
+    :db/id #db/id[:db.part/db]
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/noHistory true
+    :db.install/_attribute :db.part/db}])
+
 (defmacro with-testdb [& body]
   `(binding [*conn* (fresh-db-conn!)]
+     @(d/transact *conn* attrs)
      ~@body))
 
 (deftest read-not-exist
@@ -23,18 +40,9 @@
       (is (= (rs/read-session store "non-existent")
              {})))))
 
-(def my-attrs [{:db/ident :session/foo
-                :db/id #db/id[:db.part/db]
-                :db/valueType :db.type/string
-                :db/cardinality :db.cardinality/one
-                :db/noHistory true
-                :db.install/_attribute :db.part/db}])
-
 (deftest session-create
   (with-testdb
-    (let [store (ds/datomic-store
-                 {:conn *conn*
-                  :attrs my-attrs})
+    (let [store (ds/datomic-store {:conn *conn*})
           key (rs/write-session store nil {:session/foo "bar"})
           entity   (rs/read-session store key)]
       (is key)
@@ -44,9 +52,7 @@
 
 (deftest session-update
   (with-testdb
-    (let [store (ds/datomic-store
-                 {:conn *conn*
-                  :attrs my-attrs})
+    (let [store (ds/datomic-store {:conn *conn*})
           key0 (rs/write-session store nil {:session/foo "bar"})
           key1 (rs/write-session store key0 {:session/foo "baz",
                                              :session/key key0})
@@ -62,7 +68,6 @@
   (with-testdb
     (let [store (ds/datomic-store
                  {:conn *conn*
-                  :attrs my-attrs
                   :auto-key-change? true})
           key (rs/write-session store nil {:session/foo "bar"})
           key* (rs/write-session store key {:session/foo "baz",
@@ -75,9 +80,7 @@
 
 (deftest session-delete
   (with-testdb
-    (let [store (ds/datomic-store
-                 {:conn *conn*
-                  :attrs my-attrs})
+    (let [store (ds/datomic-store {:conn *conn*})
           key (rs/write-session store nil {:session/foo "bar"})]
       (is (nil? (rs/delete-session store key)))
       (is (= (rs/read-session store key) {})))))
