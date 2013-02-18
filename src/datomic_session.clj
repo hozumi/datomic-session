@@ -21,7 +21,7 @@
       (conj retracts (assoc new-only :db/id eid))
       retracts)))
 
-(deftype DatomicStore [conn auto-key-change?]
+(deftype DatomicStore [conn partition auto-key-change?]
   rs/SessionStore
   (read-session [_ key]
     (let [db (d/db conn)]
@@ -39,7 +39,7 @@
             @(d/transact conn tx-data)))
         @(d/transact conn
                      [(assoc data
-                        :db/id #db/id [:db.part/user]
+                        :db/id (d/tempid (or partition :db.part/user))
                         :session/key key)]))
       key))
   (delete-session [_ key]
@@ -47,5 +47,5 @@
       @(d/transact conn [[:db.fn/retractEntity eid]]))
     nil))
 
-(defn datomic-store [{:keys [conn auto-key-change?]}]
-  (DatomicStore. conn auto-key-change?))
+(defn datomic-store [{:keys [conn partition auto-key-change?]}]
+  (DatomicStore. conn partition auto-key-change?))
