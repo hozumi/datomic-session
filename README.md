@@ -48,7 +48,7 @@ Then you also need to install attributes you will use as session.<br>
 *options*
 
 * **:conn** *(Connection)* specifies datomic connection.
-* **:partition** *(Keyword)* specifies datomic partition where session data are stored. Default is `:db.part/user`.
+* **:partition** *(Keyword)* specifies datomic partition where session data is stored. Default is `:db.part/user`.
 * **:auto-key-change?** *(boolean)* specifies whether or not session id are changed when updated. Default is false.
 
 ## Installation
