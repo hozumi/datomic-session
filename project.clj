@@ -1,4 +1,4 @@
-(defproject datomic-session "0.1.0"
+(defproject datomic-session "0.1.1"
   :description "A Datomic version of Ring's http session storage"
   :url "https://github.com/hozumi/clj-datomic-session"
   :license {:name "Eclipse Public License"
