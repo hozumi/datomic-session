@@ -3,7 +3,7 @@
             [datomic.api :as d]
             [ring.middleware.session.store :as rs]))
 
-(defn get-eid-by-key [db key]
+(defn key->eid [db key]
   (and key
        (ffirst
         (d/q '[:find ?eid
@@ -17,18 +17,18 @@
         retracts (->> old-only
                       (remove (fn [[k]] (get new-only k)))
                       (map (fn [[k v]] [:db/retract eid k v])))]
-    (if (empty? new-only)
-      retracts
-      (conj retracts (assoc new-only :db/id eid)))))
+    (if (seq new-only)
+      (conj retracts (assoc new-only :db/id eid))
+      retracts)))
 
 (deftype DatomicStore [conn auto-key-change?]
   rs/SessionStore
   (read-session [_ key]
     (let [db (d/db conn)]
-      (into {} (d/entity db (get-eid-by-key db key)))))
+      (into {} (d/entity db (key->eid db key)))))
   (write-session [_ key data]
     (let [db (and key (d/db conn))
-          eid (get-eid-by-key db key)
+          eid (key->eid db key)
           key-change? (or (not eid) auto-key-change?)
           key (if key-change?
                    (str (java.util.UUID/randomUUID)) key)]
@@ -43,7 +43,7 @@
                         :session/key key)]))
       key))
   (delete-session [_ key]
-    (when-let [eid (get-eid-by-key (d/db conn) key)]
+    (when-let [eid (key->eid (d/db conn) key)]
       @(d/transact conn [[:db.fn/retractEntity eid]]))
     nil))
 
