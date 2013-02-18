@@ -1,6 +1,6 @@
 # datomic-session
 
-Datomic-session is a Datomic version of Ring's http session storage.
+Datomic-session is a Datomic version of Ring http session storage.
 
 ## Usage
 
