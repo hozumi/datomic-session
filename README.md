@@ -48,7 +48,7 @@ Then you also need to install attributes you will use as session.<br>
 *options*
 
 * **:conn** *(Connection)* Datomic connection.
-* **:auto-key-change?** *(boolean)* Change session id when session is updated. Defaults to false.
+* **:auto-key-change?** *(boolean)* Change session id when session is updated. Default is false.
 
 ## Installation
 Leiningen
