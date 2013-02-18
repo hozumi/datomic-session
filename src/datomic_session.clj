@@ -4,13 +4,13 @@
             [ring.middleware.session.store :as rs]))
 
 (defn key->eid [db key]
-  (and key
-       (ffirst
-        (d/q '[:find ?eid
-               :in $ ?key
-               :where
-               [?eid :session/key ?key]]
-             db key))))
+  (when key
+    (ffirst
+     (d/q '[:find ?eid
+            :in $ ?key
+            :where
+            [?eid :session/key ?key]]
+          db key))))
 
 (defn diff-tx-data [eid old-m new-m]
   (let [[old-only new-only] (data/diff old-m new-m)
