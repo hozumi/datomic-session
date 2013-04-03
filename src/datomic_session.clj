@@ -3,13 +3,13 @@
             [datomic.api :as d]
             [ring.middleware.session.store :as rs]))
 
-(defn key->eid [db key]
+(defn key->eid [db key-attr key]
   (ffirst
    (d/q '[:find ?eid
-          :in $ ?key
+          :in $ ?key-attr ?key
           :where
-          [?eid :session/key ?key]]
-        db key)))
+          [?eid ?key-attr ?key]]
+        db key-attr key)))
 
 (defn diff-tx-data [eid old-m new-m]
   (let [[old-only new-only] (data/diff old-m new-m)
@@ -20,7 +20,7 @@
       (conj retracts (assoc new-only :db/id eid))
       retracts)))
 
-(deftype DatomicStore [conn partition auto-key-change?]
+(deftype DatomicStore [conn key-attr partition auto-key-change?]
   rs/SessionStore
   (read-session [_ key]
     (let [uuid-key (when key
@@ -28,33 +28,33 @@
                           (catch java.lang.IllegalArgumentException e nil)))]
       (into {} (when uuid-key
                  (let [db (d/db conn)]
-                   (d/entity db (key->eid db uuid-key)))))))
+                   (d/entity db (key->eid db key-attr uuid-key)))))))
   (write-session [_ key data]
     (let [uuid-key (when key
                      (try (java.util.UUID/fromString key)
                           (catch java.lang.IllegalArgumentException e nil)))
           db (when uuid-key (d/db conn))
-          eid (when uuid-key (key->eid db uuid-key))
+          eid (when uuid-key (key->eid db key-attr uuid-key))
           key-change? (or (not eid) auto-key-change?)
           uuid-key (if key-change?
                      (java.util.UUID/randomUUID) uuid-key)]
       (if eid
         (let [old-data (into {} (d/entity db eid))
-              tx-data (diff-tx-data eid old-data (assoc data :session/key uuid-key))]
+              tx-data (diff-tx-data eid old-data (assoc data key-attr uuid-key))]
           (when (seq tx-data)
             @(d/transact conn tx-data)))
         @(d/transact conn
                      [(assoc data
                         :db/id (d/tempid partition)
-                        :session/key uuid-key)]))
+                        key-attr uuid-key)]))
       (str uuid-key)))
   (delete-session [_ key]
     (when-let [uuid-key (when key
                           (try (java.util.UUID/fromString key)
                                (catch java.lang.IllegalArgumentException e nil)))]
-      (when-let [eid (key->eid (d/db conn) uuid-key)]
+      (when-let [eid (key->eid (d/db conn) key-attr uuid-key)]
         @(d/transact conn [[:db.fn/retractEntity eid]])))
     nil))
 
-(defn datomic-store [{:keys [conn partition auto-key-change?]}]
-  (DatomicStore. conn (or partition :db.part/user) auto-key-change?))
+(defn datomic-store [{:keys [conn key-attr partition auto-key-change?]}]
+  (DatomicStore. conn (or key-attr :session/key) (or partition :db.part/user) auto-key-change?))
