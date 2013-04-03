@@ -25,7 +25,7 @@ You must install following :session/key attribute into datomic.
 ```clojure
 {:db/ident :session/key
  :db/id #db/id[:db.part/db]
- :db/valueType :db.type/string
+ :db/valueType :db.type/uuid
  :db/cardinality :db.cardinality/one
  :db/unique :db.unique/value
  :db/index true
