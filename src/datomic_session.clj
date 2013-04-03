@@ -56,5 +56,6 @@
         @(d/transact conn [[:db.fn/retractEntity eid]])))
     nil))
 
-(defn datomic-store [{:keys [conn key-attr partition auto-key-change?]}]
-  (DatomicStore. conn (or key-attr :session/key) (or partition :db.part/user) auto-key-change?))
+(defn datomic-store [{:keys [conn key-attr partition auto-key-change?]
+                      :or {key-attr :session/key partition :db.part/user}}]
+  (DatomicStore. conn key-attr partition auto-key-change?))
