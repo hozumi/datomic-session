@@ -31,7 +31,7 @@
           eid (key->eid db key)
           key-change? (or (not eid) auto-key-change?)
           key (if key-change?
-                   (str (java.util.UUID/randomUUID)) key)]
+                (str (java.util.UUID/randomUUID)) key)]
       (if eid
         (let [old-data (into {} (d/entity db eid))
               tx-data (diff-tx-data eid old-data (assoc data :session/key key))]
