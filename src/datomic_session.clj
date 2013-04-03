@@ -39,7 +39,7 @@
             @(d/transact conn tx-data)))
         @(d/transact conn
                      [(assoc data
-                        :db/id (d/tempid (or partition :db.part/user))
+                        :db/id (d/tempid partition)
                         :session/key key)]))
       key))
   (delete-session [_ key]
@@ -48,4 +48,4 @@
     nil))
 
 (defn datomic-store [{:keys [conn partition auto-key-change?]}]
-  (DatomicStore. conn partition auto-key-change?))
+  (DatomicStore. conn (or partition :db.part/user) auto-key-change?))
