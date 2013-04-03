@@ -24,27 +24,37 @@
 (deftype DatomicStore [conn partition auto-key-change?]
   rs/SessionStore
   (read-session [_ key]
-    (let [db (d/db conn)]
-      (into {} (d/entity db (key->eid db key)))))
+    (let [uuid-key (when key
+                     (try (java.util.UUID/fromString key)
+                          (catch java.lang.IllegalArgumentException e nil)))]
+      (into {} (when uuid-key
+                 (let [db (d/db conn)]
+                   (d/entity db (key->eid db uuid-key)))))))
   (write-session [_ key data]
-    (let [db (and key (d/db conn))
-          eid (key->eid db key)
+    (let [uuid-key (when key
+                     (try (java.util.UUID/fromString key)
+                          (catch java.lang.IllegalArgumentException e nil)))
+          db (when uuid-key (d/db conn))
+          eid (when uuid-key (key->eid db uuid-key))
           key-change? (or (not eid) auto-key-change?)
-          key (if key-change?
-                (str (java.util.UUID/randomUUID)) key)]
+          uuid-key (if key-change?
+                     (java.util.UUID/randomUUID) uuid-key)]
       (if eid
         (let [old-data (into {} (d/entity db eid))
-              tx-data (diff-tx-data eid old-data (assoc data :session/key key))]
+              tx-data (diff-tx-data eid old-data (assoc data :session/key uuid-key))]
           (when (seq tx-data)
             @(d/transact conn tx-data)))
         @(d/transact conn
                      [(assoc data
                         :db/id (d/tempid partition)
-                        :session/key key)]))
-      key))
+                        :session/key uuid-key)]))
+      (str uuid-key)))
   (delete-session [_ key]
-    (when-let [eid (key->eid (d/db conn) key)]
-      @(d/transact conn [[:db.fn/retractEntity eid]]))
+    (when-let [uuid-key (when key
+                          (try (java.util.UUID/fromString key)
+                               (catch java.lang.IllegalArgumentException e nil)))]
+      (when-let [eid (key->eid (d/db conn) uuid-key)]
+        @(d/transact conn [[:db.fn/retractEntity eid]])))
     nil))
 
 (defn datomic-store [{:keys [conn partition auto-key-change?]}]

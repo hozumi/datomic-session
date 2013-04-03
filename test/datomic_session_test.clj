@@ -16,7 +16,7 @@
 (def attrs
   [{:db/ident :session/key
     :db/id #db/id[:db.part/db]
-    :db/valueType :db.type/string
+    :db/valueType :db.type/uuid
     :db/cardinality :db.cardinality/one
     :db/unique :db.unique/value
     :db/index true
@@ -48,7 +48,7 @@
       (is key)
       (is (= entity
              {:session/foo "bar",
-              :session/key key})))))
+              :session/key (java.util.UUID/fromString key)})))))
 
 (deftest session-update
   (with-testdb
@@ -61,8 +61,8 @@
           entity2 (rs/read-session store key2)]
       (is (= key0 key1 key2))
       (is (= entity1 {:session/foo "baz",
-                      :session/key key1}))
-      (is (= entity2 {:session/key key2})))))
+                      :session/key (java.util.UUID/fromString key1)}))
+      (is (= entity2 {:session/key (java.util.UUID/fromString key2)})))))
 
 (deftest session-auto-key-change
   (with-testdb
@@ -76,7 +76,7 @@
       (is (not= key key*))
       (is (= entity
              {:session/foo "baz",
-              :session/key key*})))))
+              :session/key (java.util.UUID/fromString key*)})))))
 
 (deftest session-delete
   (with-testdb
