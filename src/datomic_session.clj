@@ -11,6 +11,11 @@
           [?eid ?key-attr ?key]]
         db key-attr key)))
 
+(defn str->uuid [s]
+  (when s
+    (try (java.util.UUID/fromString s)
+         (catch java.lang.IllegalArgumentException e nil))))
+
 (defn diff-tx-data [eid old-m new-m]
   (let [[old-only new-only] (data/diff old-m new-m)
         retracts (->> old-only
@@ -23,16 +28,12 @@
 (deftype DatomicStore [conn key-attr partition auto-key-change?]
   rs/SessionStore
   (read-session [_ key]
-    (let [uuid-key (when key
-                     (try (java.util.UUID/fromString key)
-                          (catch java.lang.IllegalArgumentException e nil)))]
+    (let [uuid-key (str->uuid key)]
       (into {} (when uuid-key
                  (let [db (d/db conn)]
                    (d/entity db (key->eid db key-attr uuid-key)))))))
   (write-session [_ key data]
-    (let [uuid-key (when key
-                     (try (java.util.UUID/fromString key)
-                          (catch java.lang.IllegalArgumentException e nil)))
+    (let [uuid-key (str->uuid key)
           db (when uuid-key (d/db conn))
           eid (when uuid-key (key->eid db key-attr uuid-key))
           key-change? (or (not eid) auto-key-change?)
@@ -49,9 +50,7 @@
                         key-attr uuid-key)]))
       (str uuid-key)))
   (delete-session [_ key]
-    (when-let [uuid-key (when key
-                          (try (java.util.UUID/fromString key)
-                               (catch java.lang.IllegalArgumentException e nil)))]
+    (when-let [uuid-key (str->uuid key)]
       (when-let [eid (key->eid (d/db conn) key-attr uuid-key)]
         @(d/transact conn [[:db.fn/retractEntity eid]])))
     nil))
