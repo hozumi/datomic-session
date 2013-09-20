@@ -5,4 +5,4 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [com.datomic/datomic-free "0.8.3397"]
-                 [ring/ring-core "1.1.1"]])
+                 [ring/ring-core "1.1.8"]])
