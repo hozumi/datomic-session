@@ -55,4 +55,4 @@ Then you also need to install attributes you will use as session.<br>
 ## Installation
 Leiningen
 
-    [datomic-session "0.2.0-alpha2"]
+    [datomic-session "0.2.0"]
